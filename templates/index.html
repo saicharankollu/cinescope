@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="hero-section text-white">
+    <div class="container text-center">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <h1 class="display-3 fw-bold mb-4 animate-fade-in">
+                    <i class="fas fa-film me-3"></i>Welcome to CineScope
+                </h1>
+                <p class="lead fs-4 mb-5 opacity-90">
+                    Discover your next favorite movie with our intelligent search and personalized recommendations powered by real-time OMDB data
+                </p>
+                <div class="d-flex gap-3 justify-content-center flex-wrap">
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg px-5 shadow-lg">
+                        <i class="fas fa-rocket me-2"></i>Get Started
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg px-5">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 mb-5">
+        <div class="col-md-4">
+            <div class="card h-100 text-center p-4 border-0">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="bg-primary bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-search fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-3">Search Movies</h3>
+                    <p class="text-muted">
+                        Find any movie instantly with our powerful search engine powered by the OMDB API. Get detailed information including ratings, cast, plot, and more.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center p-4 border-0">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="bg-success bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-star fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-3">Smart Recommendations</h3>
+                    <p class="text-muted">
+                        Discover similar movies based on your searches. Our AI-powered recommendation system helps you find your next favorite film.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 text-center p-4 border-0">
+                <div class="card-body">
+                    <div class="mb-4">
+                        <div class="bg-danger bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-heart fa-2x text-white"></i>
+                        </div>
+                    </div>
+                    <h3 class="fw-bold mb-3">Save Favorites</h3>
+                    <p class="text-muted">
+                        Keep track of movies you love. Save favorites, view search history, and never lose track of the films you want to watch.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg overflow-hidden">
+                <div class="card-body p-0">
+                    <div class="row g-0">
+                        <div class="col-md-6 bg-gradient-primary text-white p-5 d-flex align-items-center">
+                            <div>
+                                <h2 class="fw-bold mb-4">Why Choose CineScope?</h2>
+                                <ul class="list-unstyled">
+                                    <li class="mb-3">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Real-time movie data from OMDB
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Beautiful, modern interface
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Personalized recommendations
+                                    </li>
+                                    <li class="mb-3">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Secure user accounts
+                                    </li>
+                                    <li>
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Free forever, no hidden costs
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-6 p-5 d-flex align-items-center">
+                            <div>
+                                <h3 class="fw-bold mb-4">Ready to Get Started?</h3>
+                                <p class="text-muted mb-4">
+                                    Join thousands of movie lovers discovering their next favorite film. Create your free account in seconds.
+                                </p>
+                                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">
+                                    <i class="fas fa-user-plus me-2"></i>Create Free Account
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-primary {
+    background: var(--gradient-primary);
+}
+.animate-fade-in {
+    animation: fadeInUp 0.8s ease;
+}
+</style>
+{% endblock %}

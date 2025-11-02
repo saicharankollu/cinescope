@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div>
+                    <h2 class="fw-bold mb-2">
+                        <i class="fas fa-history text-primary me-2"></i>Search History
+                    </h2>
+                    <p class="text-muted mb-0">Your recent movie searches</p>
+                </div>
+                <div class="d-flex gap-2 align-items-center">
+                    <!-- History Toggle Switch -->
+                    <div class="form-check form-switch me-3">
+                        <input class="form-check-input" type="checkbox" id="historyToggle" 
+                               {% if save_history_enabled %}checked{% endif %}
+                               onchange="toggleHistorySaving(this.checked)">
+                        <label class="form-check-label" for="historyToggle">
+                            <strong>Save History</strong>
+                        </label>
+                    </div>
+                    <a href="{{ url_for('favorites') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-heart me-1"></i>Favorites
+                    </a>
+                    <a href="{{ url_for('main') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>New Search
+                    </a>
+                </div>
+            </div>
+            
+            <!-- History Status Alert -->
+            <div id="historyStatusAlert" class="alert alert-info alert-dismissible fade d-none" role="alert">
+                <i class="fas fa-info-circle me-2"></i>
+                <span id="historyStatusMessage"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            
+            {% if history %}
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4">Movie Title</th>
+                                    <th>Search Date</th>
+                                    <th class="text-end pe-4">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in history %}
+                                <tr class="movie-history-row">
+                                    <td class="ps-4">
+                                        <strong class="d-flex align-items-center">
+                                            <i class="fas fa-film text-primary me-2"></i>{{ item.movie_title }}
+                                        </strong>
+                                    </td>
+                                    <td>
+                                        <span class="text-muted">
+                                            <i class="fas fa-calendar-alt me-1"></i>{{ item.search_date }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-sm btn-primary" onclick="searchAgain('{{ item.movie_title }}')">
+                                            <i class="fas fa-search me-1"></i>Search Again
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center py-5 empty-state">
+                    <div class="mb-4">
+                        <i class="fas fa-history" style="font-size: 4rem; color: #d1d5db;"></i>
+                    </div>
+                    <h4 class="fw-bold text-muted mb-3">No Search History Yet</h4>
+                    <p class="text-muted mb-4">Start searching for movies to see your history here</p>
+                    <a href="{{ url_for('main') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Start Searching
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.movie-history-row {
+    transition: all 0.2s ease;
+}
+
+.movie-history-row:hover {
+    background: #f9fafb !important;
+    transform: translateX(5px);
+}
+
+.form-check-input {
+    width: 3rem;
+    height: 1.5rem;
+    cursor: pointer;
+}
+
+.form-check-input:checked {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.form-check-label {
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.95rem;
+}
+</style>
+
+<script>
+function searchAgain(title) {
+    window.location.href = "{{ url_for('main') }}?search=" + encodeURIComponent(title);
+}
+
+function toggleHistorySaving(enabled) {
+    fetch('/toggle_history', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ enable: enabled })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Show status message
+            const alertDiv = document.getElementById('historyStatusAlert');
+            const messageSpan = document.getElementById('historyStatusMessage');
+            const statusIcon = alertDiv.querySelector('i');
+            
+            messageSpan.textContent = data.message;
+            alertDiv.className = enabled ? 
+                'alert alert-success alert-dismissible fade show' : 
+                'alert alert-warning alert-dismissible fade show';
+            statusIcon.className = enabled ? 
+                'fas fa-check-circle me-2' : 
+                'fas fa-exclamation-triangle me-2';
+            
+            // Auto-hide after 3 seconds
+            setTimeout(() => {
+                const alert = bootstrap.Alert.getOrCreateInstance(alertDiv);
+                alert.close();
+            }, 3000);
+        } else {
+            alert('Error: ' + (data.error || 'Failed to update history setting'));
+            // Revert toggle
+            document.getElementById('historyToggle').checked = !enabled;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while updating history setting');
+        // Revert toggle
+        document.getElementById('historyToggle').checked = !enabled;
+    });
+}
+
+// Auto-search if search parameter exists
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const search = urlParams.get('search');
+    if (search) {
+        // Redirect to main and trigger search
+        window.location.href = "{{ url_for('main') }}";
+        // Store search term in sessionStorage for script.js to pick up
+        sessionStorage.setItem('autoSearch', search);
+    }
+});
+</script>
+{% endblock %}
+
+

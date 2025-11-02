@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4 mb-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <div>
+                    <h2 class="fw-bold mb-2">
+                        <i class="fas fa-heart text-danger me-2"></i>My Favorites
+                    </h2>
+                    <p class="text-muted mb-0">Movies you've saved to watch later</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('search_history') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-history me-1"></i>History
+                    </a>
+                    <a href="{{ url_for('main') }}" class="btn btn-primary">
+                        <i class="fas fa-search me-1"></i>Search Movies
+                    </a>
+                </div>
+            </div>
+            
+            {% if favorites %}
+            <div class="row g-4">
+                {% for favorite in favorites %}
+                <div class="col-md-4 col-lg-3">
+                    <div class="card shadow-lg border-0 h-100 movie-card">
+                        <div class="card-body d-flex flex-column">
+                            <div class="mb-3">
+                                <div class="bg-danger bg-gradient rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                                    <i class="fas fa-heart fa-lg text-white"></i>
+                                </div>
+                            </div>
+                            <h5 class="card-title fw-bold mb-3">{{ favorite.movie_title }}</h5>
+                            <p class="text-muted mb-auto">
+                                <small>
+                                    <i class="fas fa-calendar-alt me-1"></i>
+                                    Added {{ favorite.added_date }}
+                                </small>
+                            </p>
+                            <div class="d-grid gap-2 mt-3">
+                                <button class="btn btn-sm btn-primary" onclick="searchFavorite('{{ favorite.movie_title }}')">
+                                    <i class="fas fa-search me-1"></i>View Details
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="removeFavorite({{ favorite.id }})">
+                                    <i class="fas fa-trash me-1"></i>Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="card shadow-lg border-0">
+                <div class="card-body text-center py-5 empty-state">
+                    <div class="mb-4">
+                        <i class="fas fa-heart" style="font-size: 4rem; color: #d1d5db;"></i>
+                    </div>
+                    <h4 class="fw-bold text-muted mb-3">No Favorites Yet</h4>
+                    <p class="text-muted mb-4">Add movies to your favorites while searching to see them here</p>
+                    <a href="{{ url_for('main') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search me-2"></i>Start Searching
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function searchFavorite(title) {
+    window.location.href = "{{ url_for('main') }}?search=" + encodeURIComponent(title);
+}
+
+function removeFavorite(favoriteId) {
+    if (!confirm('Are you sure you want to remove this movie from favorites?')) {
+        return;
+    }
+    
+    fetch('/remove_favorite', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ favorite_id: favoriteId })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            location.reload();
+        } else {
+            alert('Error: ' + (data.error || 'Failed to remove favorite'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while removing the favorite');
+    });
+}
+
+// Auto-search if search parameter exists
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const search = urlParams.get('search');
+    if (search) {
+        window.location.href = "{{ url_for('main') }}";
+        sessionStorage.setItem('autoSearch', search);
+    }
+});
+</script>
+{% endblock %}
+
+

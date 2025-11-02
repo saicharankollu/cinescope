@@ -1,0 +1,530 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="text-center mb-5">
+                <h1 class="display-4 fw-bold mb-3 text-gradient">
+                    <i class="fas fa-film me-3"></i>Find Your Next Favorite Movie
+                </h1>
+                <p class="lead text-muted fs-5">
+                    Search by title or describe a movie you remember - our AI Director will help you find it!
+                </p>
+            </div>
+            
+            <!-- Search Tabs -->
+            <ul class="nav nav-pills nav-fill mb-4" id="searchTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="title-search-tab" data-bs-toggle="tab" data-bs-target="#title-search" type="button" role="tab">
+                        <i class="fas fa-search me-2"></i>Search by Title
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="director-tab" data-bs-toggle="tab" data-bs-target="#director-chat" type="button" role="tab">
+                        <i class="fas fa-robot me-2"></i>DIRECTOR AI Assistant
+                    </button>
+                </li>
+            </ul>
+
+            <!-- Tab Content -->
+            <div class="tab-content" id="searchTabContent">
+                <!-- Title Search Tab -->
+                <div class="tab-pane fade show active" id="title-search" role="tabpanel">
+                    <div class="card shadow-lg border-0 mb-5">
+                        <div class="card-body p-4">
+                            <form id="searchForm">
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bg-white border-end-0">
+                                        <i class="fas fa-search text-primary"></i>
+                                    </span>
+                                    <input type="text" id="searchInput" class="form-control border-start-0" 
+                                           placeholder="Enter movie title (e.g., Avatar, Titanic, Inception, The Matrix)..."
+                                           autocomplete="off"
+                                           required>
+                                    <button type="submit" class="btn btn-primary px-4">
+                                        <i class="fas fa-search me-2"></i>Search
+                                    </button>
+                                </div>
+                                <small class="text-muted mt-2 d-block">
+                                    <i class="fas fa-lightbulb me-1"></i>
+                                    Tip: Be specific with movie titles for better results
+                                </small>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- DIRECTOR AI Chat Tab -->
+                <div class="tab-pane fade" id="director-chat" role="tabpanel">
+                    <div class="card shadow-lg border-0 mb-5">
+                        <div class="card-header bg-gradient-primary text-white d-flex align-items-center">
+                            <div class="director-avatar me-3">
+                                <i class="fas fa-robot fa-2x"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0 fw-bold">DIRECTOR</h4>
+                                <small class="opacity-75">AI Movie Identification Assistant</small>
+                            </div>
+                            <div class="ms-auto">
+                                <span class="badge bg-light text-primary">Powered by OpenRouter AI</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-0" style="height: 500px; display: flex; flex-direction: column;">
+                            <!-- Chat Messages Container -->
+                            <div id="directorChatMessages" class="chat-messages p-4 flex-grow-1 overflow-auto">
+                                <div class="chat-message bot-message mb-3">
+                                    <div class="message-content">
+                                        <div class="director-avatar-small me-2">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <div class="message-bubble">
+                                            <p class="mb-0">👋 Hello! I'm <strong>DIRECTOR</strong>, your AI movie assistant. I can help you find movies even if you only remember the plot, characters, or scenes!</p>
+                                            <p class="mb-0 mt-2">Try describing a movie you remember:</p>
+                                            <ul class="mb-0 mt-2 ps-3">
+                                                <li>"a futuristic Indian movie with Prabhas as a bounty hunter"</li>
+                                                <li>"a time travel movie about a man who goes back in time"</li>
+                                                <li>"a movie where people fight in dreams"</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Chat Input -->
+                            <div class="chat-input p-3 border-top">
+                                <form id="directorChatForm" class="d-flex gap-2">
+                                    <input type="text" id="directorChatInput" class="form-control" 
+                                           placeholder="Describe the movie you're looking for..."
+                                           autocomplete="off" required>
+                                    <button type="submit" class="btn btn-primary" id="directorSendBtn">
+                                        <i class="fas fa-paper-plane"></i>
+                                    </button>
+                                </form>
+                                <small class="text-muted d-block mt-2">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Describe plot, characters, actors, or any details you remember
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Container -->
+            <div id="results">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Director Chat Styles -->
+<style>
+.director-avatar {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.director-avatar-small {
+    width: 32px;
+    height: 32px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    flex-shrink: 0;
+}
+
+.chat-messages {
+    background: #f8f9fa;
+    min-height: 400px;
+}
+
+.chat-message {
+    display: flex;
+    margin-bottom: 1rem;
+    animation: fadeInUp 0.3s ease;
+}
+
+.chat-message.user-message {
+    justify-content: flex-end;
+}
+
+.chat-message.user-message .message-content {
+    flex-direction: row-reverse;
+}
+
+.chat-message .message-content {
+    display: flex;
+    align-items: flex-start;
+    max-width: 80%;
+}
+
+.message-bubble {
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.user-message .message-bubble {
+    background: var(--gradient-primary);
+    color: white;
+}
+
+.bot-message .message-bubble {
+    background: white;
+    border-left: 3px solid var(--primary-color);
+}
+
+.chat-message.bot-message .message-bubble ul {
+    margin: 0.5rem 0;
+    padding-left: 1.5rem;
+}
+
+.chat-message.bot-message .message-bubble li {
+    margin: 0.25rem 0;
+}
+
+.movie-result-card {
+    margin-top: 1rem;
+    animation: fadeInUp 0.5s ease;
+}
+
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #6c757d;
+    font-style: italic;
+}
+
+.typing-dots {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--primary-color);
+    border-radius: 50%;
+    animation: typing 1.4s infinite;
+}
+
+.typing-dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: translateY(0);
+        opacity: 0.7;
+    }
+    30% {
+        transform: translateY(-10px);
+        opacity: 1;
+    }
+}
+
+.suggestion-chip {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    margin: 0.25rem;
+    background: #e9ecef;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+}
+
+.suggestion-chip:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.nav-pills .nav-link {
+    border-radius: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.nav-pills .nav-link.active {
+    background: var(--gradient-primary);
+}
+</style>
+
+<!-- Director Chat JavaScript -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const directorChatForm = document.getElementById('directorChatForm');
+    const directorChatInput = document.getElementById('directorChatInput');
+    const directorChatMessages = document.getElementById('directorChatMessages');
+    const directorSendBtn = document.getElementById('directorSendBtn');
+    
+    let conversationHistory = [];
+    
+    if (directorChatForm) {
+        directorChatForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = directorChatInput.value.trim();
+            if (message) {
+                sendDirectorMessage(message);
+                directorChatInput.value = '';
+            }
+        });
+    }
+    
+    function sendDirectorMessage(message) {
+        // Add user message to chat
+        addMessageToChat('user', message);
+        
+        // Show typing indicator
+        const typingId = showTypingIndicator();
+        
+        // Disable input
+        directorChatInput.disabled = true;
+        directorSendBtn.disabled = true;
+        
+        // Send to backend
+        fetch('/director_chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                message: message,
+                history: conversationHistory
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            removeTypingIndicator(typingId);
+            
+            // Re-enable input
+            directorChatInput.disabled = false;
+            directorSendBtn.disabled = false;
+            directorChatInput.focus();
+            
+            if (data.error) {
+                addMessageToChat('bot', `⚠️ ${data.error}: ${data.message || 'An error occurred'}`);
+                return;
+            }
+            
+            // Update conversation history
+            conversationHistory.push({role: 'user', content: message});
+            conversationHistory.push({role: 'assistant', content: data.message});
+            
+            // Handle different response types
+            if (data.type === 'movie_found') {
+                // No recommendations in chatbot - only in title search
+                addMessageToChat('bot', data.message, data.movie, null, data.confidence);
+            } else if (data.type === 'multiple_movies') {
+                addMessageToChat('bot', data.message, null, null, data.confidence, data.movies);
+            } else if (data.type === 'suggestions') {
+                addMessageToChat('bot', data.message, null, null, data.confidence, null, data.suggestions);
+            } else {
+                addMessageToChat('bot', data.message);
+            }
+        })
+        .catch(error => {
+            removeTypingIndicator(typingId);
+            directorChatInput.disabled = false;
+            directorSendBtn.disabled = false;
+            directorChatInput.focus();
+            addMessageToChat('bot', '⚠️ Sorry, I encountered an error. Please try again.');
+        });
+    }
+    
+    function addMessageToChat(sender, message, movie = null, recommendations = null, confidence = null, multipleMovies = null, suggestions = null) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chat-message ${sender}-message mb-3`;
+        
+        let contentHTML = '';
+        
+        if (sender === 'user') {
+            contentHTML = `
+                <div class="message-content">
+                    <div class="message-bubble">
+                        <p class="mb-0">${escapeHtml(message)}</p>
+                    </div>
+                </div>
+            `;
+        } else {
+            // Bot message
+            let movieHTML = '';
+            if (movie) {
+                // Single movie found
+                movieHTML = `
+                    <div class="movie-result-card card shadow-sm border-0 mt-3">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-film me-2"></i>${escapeHtml(movie.title)}</h5>
+                            <button class="btn btn-sm btn-light favorite-btn ${movie.is_favorite ? 'active' : ''}" 
+                                    onclick="toggleFavorite('${movie.imdb_id}', '${movie.title.replace(/'/g, "\\'")}')">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-4 text-center">
+                                    <div class="d-flex justify-content-center align-items-center" style="min-height: 300px;">
+                                        <img src="${movie.poster || 'https://via.placeholder.com/250x375/667eea/ffffff?text=No+Poster'}" 
+                                             alt="${escapeHtml(movie.title)}" 
+                                             class="poster-img-small" 
+                                             loading="lazy"
+                                             onload="this.classList.add('loaded')"
+                                             onerror="this.onerror=null; this.src='https://via.placeholder.com/250x375/667eea/ffffff?text=No+Poster'; this.classList.add('loaded');">
+                                    </div>
+                                </div>
+                                <div class="col-md-8">
+                                    <p><strong><i class="fas fa-star text-warning"></i> Rating:</strong> ${movie.rating}</p>
+                                    <p><strong><i class="fas fa-calendar"></i> Year:</strong> ${movie.year}</p>
+                                    <p><strong><i class="fas fa-clock"></i> Runtime:</strong> ${movie.runtime}</p>
+                                    <p><strong><i class="fas fa-tags"></i> Genre:</strong> ${movie.genre}</p>
+                                    <p><strong><i class="fas fa-user"></i> Director:</strong> ${movie.director}</p>
+                                    <p><strong><i class="fas fa-users"></i> Cast:</strong> ${movie.actors}</p>
+                                    <div class="mt-2">
+                                        <strong>Plot:</strong>
+                                        <p class="text-muted">${movie.summary}</p>
+                                    </div>
+                                    <button class="btn btn-sm btn-primary mt-2" onclick="showMovieDetails('${movie.imdb_id}')">
+                                        <i class="fas fa-info-circle me-1"></i>View Full Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                // Recommendations removed from chatbot - only shown in title search
+            } else if (multipleMovies && multipleMovies.length > 0) {
+                // Multiple movies found
+                movieHTML = '<div class="row g-3 mt-3">';
+                multipleMovies.forEach(m => {
+                    movieHTML += `
+                        <div class="col-md-6">
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body">
+                                    <h6 class="fw-bold">${escapeHtml(m.title)} (${m.year})</h6>
+                                    <p class="text-muted mb-2"><small>${m.genre}</small></p>
+                                    <button class="btn btn-sm btn-primary" onclick="searchMovieTitle('${m.title.replace(/'/g, "\\'")}')">
+                                        <i class="fas fa-search me-1"></i>View Details
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+                movieHTML += '</div>';
+            }
+            
+            if (confidence) {
+                const confidenceBadge = confidence === 'high' ? 'success' : confidence === 'medium' ? 'warning' : 'secondary';
+                message += ` <span class="badge bg-${confidenceBadge} ms-2">${confidence} confidence</span>`;
+            }
+            
+            contentHTML = `
+                <div class="message-content">
+                    <div class="director-avatar-small me-2">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="message-bubble">
+                        <div class="director-response">${formatMessage(message)}</div>
+                        ${movieHTML}
+                        ${suggestions ? `<div class="mt-3">${suggestions.map(s => `<span class="suggestion-chip" onclick="sendDirectorSuggestion('${s.title}')">${escapeHtml(s.title)}</span>`).join('')}</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }
+        
+        messageDiv.innerHTML = contentHTML;
+        directorChatMessages.appendChild(messageDiv);
+        directorChatMessages.scrollTop = directorChatMessages.scrollHeight;
+    }
+    
+    function showTypingIndicator() {
+        const typingId = 'typing-' + Date.now();
+        const typingDiv = document.createElement('div');
+        typingDiv.id = typingId;
+        typingDiv.className = 'chat-message bot-message mb-3';
+        typingDiv.innerHTML = `
+            <div class="message-content">
+                <div class="director-avatar-small me-2">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="typing-indicator">
+                    <span>DIRECTOR is thinking</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+        directorChatMessages.appendChild(typingDiv);
+        directorChatMessages.scrollTop = directorChatMessages.scrollHeight;
+        return typingId;
+    }
+    
+    function removeTypingIndicator(id) {
+        const typingElement = document.getElementById(id);
+        if (typingElement) {
+            typingElement.remove();
+        }
+    }
+    
+    function formatMessage(text) {
+        // Convert markdown-style **bold** to HTML
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        return text;
+    }
+    
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
+    // Make functions available globally
+    window.sendDirectorSuggestion = function(title) {
+        directorChatInput.value = title;
+        sendDirectorMessage(title);
+    };
+    
+    window.searchMovieTitle = function(title) {
+        // Switch to title search tab and search
+        document.getElementById('title-search-tab').click();
+        document.getElementById('searchInput').value = title;
+        document.getElementById('searchForm').dispatchEvent(new Event('submit'));
+    };
+    
+    window.showMovieDetails = function(imdbId) {
+        // This would trigger a full movie details view
+        // For now, just switch to title search
+        window.searchMovieTitle(''); // Could be enhanced to search by ID
+    };
+    
+    // Focus chat input when tab is shown
+    const directorTab = document.getElementById('director-tab');
+    if (directorTab) {
+        directorTab.addEventListener('shown.bs.tab', function() {
+            directorChatInput.focus();
+        });
+    }
+});
+</script>
+{% endblock %}
